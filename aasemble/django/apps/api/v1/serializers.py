@@ -207,9 +207,10 @@ class aaSembleAPIv1Serializers(object):
             source_source_list = serializers.ReadOnlyField(source='first_series.source_source_list')
             sources = serializers.HyperlinkedIdentityField(view_name='{0}_packagesource-list'.format(selff.view_prefix), lookup_url_kwarg='repository_{0}'.format(selff.default_lookup_field), read_only=True, lookup_field=selff.default_lookup_field)
             external_dependencies = serializers.HyperlinkedIdentityField(view_name='{0}_externaldependency-list'.format(selff.view_prefix), lookup_url_kwarg='repository_{0}'.format(selff.default_lookup_field), read_only=True, lookup_field=selff.default_lookup_field)
+            extra_admins = serializers.CharField(allow_blank=True)
 
             class Meta:
                 model = buildsvc_models.Repository
-                fields = ('self', 'user', 'name', 'key_id', 'sources', 'binary_source_list', 'source_source_list', 'external_dependencies')
+                fields = ('self', 'user', 'name', 'extra_admins', 'key_id', 'sources', 'binary_source_list', 'source_source_list', 'external_dependencies')
 
         return RepositorySerializer

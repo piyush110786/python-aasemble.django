@@ -80,8 +80,8 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 401)
         self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
-    def test_create_repository(self, user='eric'):
-        data = {'name': 'testrepo'}
+    def test_create_repository(self, user='eric', extra_admins=''):
+        data = {'name': 'testrepo', 'extra_admins': extra_admins}
         authenticate(self.client, user)
         response = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
@@ -93,7 +93,8 @@ class APIv1Tests(APITestCase):
                            'self': response.data['self'],
                            'sources': response.data['self'] + 'sources/',
                            'user': user,
-                           'key_id': u''}
+                           'key_id': u'',
+                           'extra_admins': 'auth.Group.None'}
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
         self.assertEquals(response.data, expected_result)
@@ -159,6 +160,14 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
         self.assertEquals(response.data, expected_result, 'Changes were not persisted')
+
+    def test_patch_created_repository_authorative_group_member(self):
+        repo = self.test_create_repository(user='dennis', extra_admins=3)
+        authenticate(self.client, 'brandon')
+        data = {'name': 'testrepo2'}
+        response = self.client.patch(repo['self'], data, format='json')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['name'], 'testrepo2')
 
     def test_patch_repository_authoritative_group_member(self):
         authenticate(self.client, 'dennis')
